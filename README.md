@@ -5,6 +5,7 @@ A small JSON microservice API for identity and session management with tokens. B
 1. Install and run redis locally on the default port
 2. ```npm install```
 3. Create an environment variable string ```secret``` to use for the routes.
+4. ```node server.js```
 
 ## Routes
 HTTP Route|HTTP Method|Parameters|Return type|HTTP Status Exceptions|Description|
