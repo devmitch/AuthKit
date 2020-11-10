@@ -16,4 +16,5 @@ HTTP Route|HTTP Method|Parameters|Return type|HTTP Status Exceptions|Description
 
 ### Todo
 - Token revocation
+- Time stamped tokens with expiry date
 - **400** errors if API params missing
