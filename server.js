@@ -25,7 +25,7 @@ app.post('/create_identity', (req, res, next) => {
             if (err.code == 'SQLITE_CONSTRAINT') {
                 error = "Email already exists!";
             }
-            return res.json({"error": error});
+            return res.status(409).json({"error": error});
         } else {
             res.json({success: true});
         }
@@ -43,7 +43,7 @@ app.post('/create_token', (req, res, next) => {
     
     db.get(sql, [req.body.email], (err, row) => {
         if (err) {
-            res.json({"error": "A general SQL error occured!"});
+            res.status(503).json({"error": "A general SQL error occured!"});
         } else if (row) {
             if (row.password == req.body.password) {
                 const token = uuid.v4();
@@ -51,15 +51,15 @@ app.post('/create_token', (req, res, next) => {
                 // will act as other user if existing uuid token, however that is unlikely
                 client.set(token, row.email, (err) => {
                     if (err) {
-                        return res.json({"error": err});
+                        return res.status(503).json({"error": err});
                     }
                 });
                 res.json({"token": token});
             } else {
-                res.json({"error": "Incorrect password."});
+                res.status(401).json({"error": "Incorrect password."});
             }
         } else {
-            res.json({"error": "Email not found."});
+            res.status(401).json({"error": "Email not found."});
         }
     });
 
@@ -71,11 +71,11 @@ app.post('/verify_token', (req, res, next) => {
     // token + email
     client.get(req.body.token, (err, email) => {
         if (err) {
-            res.json({"error": "A general Redis error occured!"});
+            res.status(503).json({"error": "A general Redis error occured!"});
         } else if (email && req.body.email == email) {
             res.json({"success": true});
         } else {
-            res.json({"success": false});
+            res.status(401).json({"success": false});
         }
     })
 });
