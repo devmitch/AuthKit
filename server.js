@@ -68,11 +68,12 @@ app.post('/create_token', (req, res, next) => {
 
 
 app.post('/verify_token', (req, res, next) => {
-    // token + email
+    // token
     client.get(req.body.token, (err, email) => {
         if (err) {
             res.status(503).json({"error": "A general Redis error occured!"});
-        } else if (email && req.body.email == email) {
+            // hmm should i also pass in email in API to check if the email associated with is correct
+        } else if (email) {
             res.json({"success": true});
         } else {
             res.status(401).json({"success": false});
