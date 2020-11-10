@@ -11,9 +11,17 @@ let app = express();
 
 app.use(bodyParser.json());
 
+var checkSecrets = (req, res, next) => {
+    if (req.body.secret == process.env.SECRET) {
+        next();
+    } else {
+        return res.status(401).json({"error": "Secret is incorrect."});
+    }
+};
+
 // routes //
 
-app.post('/create_identity', (req, res, next) => {
+app.post('/create_identity', checkSecrets, (req, res, next) => {
     // email, password
     let db = new sqlite3.Database('./id.db');
     // store plaintext pw for now lol
@@ -34,7 +42,7 @@ app.post('/create_identity', (req, res, next) => {
     db.close()
 });
 
-app.post('/create_token', (req, res, next) => {
+app.post('/create_token', checkSecrets, (req, res, next) => {
     // email, password
     let db = new sqlite3.Database('./id.db');
     const sql = `select email, password
