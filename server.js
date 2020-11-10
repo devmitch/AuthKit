@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
+const redis = require('redis');
+const client = redis.createClient();
+const uuid = require('uuid');
 
 let app = express();
 
@@ -43,7 +46,15 @@ app.post('/create_token', (req, res, next) => {
             res.json({"error": "A general SQL error occured!"});
         } else if (row) {
             if (row.password == req.body.password) {
-                res.json({"token": "abc123"});
+                const token = uuid.v4();
+                
+                // will act as other user if existing uuid token, however that is unlikely
+                client.set(token, row.email, (err) => {
+                    if (err) {
+                        return res.json({"error": err});
+                    }
+                });
+                res.json({"token": token});
             } else {
                 res.json({"error": "Incorrect password."});
             }
@@ -53,6 +64,20 @@ app.post('/create_token', (req, res, next) => {
     });
 
     db.close();
+});
+
+
+app.post('/verify_token', (req, res, next) => {
+    // token + email
+    client.get(req.body.token, (err, email) => {
+        if (err) {
+            res.json({"error": "A general Redis error occured!"});
+        } else if (email && req.body.email == email) {
+            res.json({"success": true});
+        } else {
+            res.json({"success": false});
+        }
+    })
 });
 
 // sqlite3 db table setup //
