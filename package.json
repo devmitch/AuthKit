@@ -1,0 +1,25 @@
+{
+  "name": "authkit",
+  "version": "1.0.0",
+  "description": "An identity and session management microservice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devmitch/AuthKit.git"
+  },
+  "author": "Mitchell Henry",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devmitch/AuthKit/issues"
+  },
+  "homepage": "https://github.com/devmitch/AuthKit#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "node-redis": "^0.1.7"
+  }
+}
