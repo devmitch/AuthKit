@@ -27,8 +27,8 @@ app.post('/create_identity', checkSecrets, (req, res, next) => {
     let db = new sqlite3.Database('./id.db');
     const sql = 'insert into Users(email, password) values (?, ?)';
 
-	// use default hashing parameters
-	const password = await argon2.hash(req.body.password);
+    // use default hashing parameters
+    const password = await argon2.hash(req.body.password);
 
     db.run(sql, [req.body.email, password] (err) => {
         if (err) {
@@ -109,5 +109,3 @@ db.close
 app.listen(8080, () => {
     console.log("Server started!");
 });
-
-//USE UUID FOR THE TOKEN, store info (user id, claims, etc) in the redis document
