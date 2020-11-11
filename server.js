@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 const redis = require('redis');
 const client = redis.createClient();
 const uuid = require('uuid');
+const argon2 = require('argon2');
 
 let app = express();
 
@@ -24,10 +25,12 @@ var checkSecrets = (req, res, next) => {
 app.post('/create_identity', checkSecrets, (req, res, next) => {
     // email, password
     let db = new sqlite3.Database('./id.db');
-    // store plaintext pw for now lol
     const sql = 'insert into Users(email, password) values (?, ?)';
 
-    db.run(sql, [req.body.email, req.body.password], (err) => {
+    // use default hashing parameters
+    const password = await argon2.hash(req.body.password);
+
+    db.run(sql, [req.body.email, password] (err) => {
         if (err) {
             let error = "A general SQL error occured!";
             if (err.code == 'SQLITE_CONSTRAINT') {
@@ -53,7 +56,7 @@ app.post('/create_token', checkSecrets, (req, res, next) => {
         if (err) {
             res.status(503).json({"error": "A general SQL error occured!"});
         } else if (row) {
-            if (row.password == req.body.password) {
+            if (await argon2.verify(row.password, req.body.password)) {
                 const token = uuid.v4();
                 
                 // will act as other user if existing uuid token, however that is unlikely
@@ -106,5 +109,3 @@ db.close
 app.listen(8080, () => {
     console.log("Server started!");
 });
-
-//USE UUID FOR THE TOKEN, store info (user id, claims, etc) in the redis document
